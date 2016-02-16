@@ -18,7 +18,6 @@ from nca47.common.i18n import _LE
 from nca47.common.i18n import _LI
 from nca47.common import rpc
 
-
 service_opts = [
     cfg.IntOpt('periodic_interval',
                default=60,

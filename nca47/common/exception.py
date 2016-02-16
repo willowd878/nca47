@@ -7,7 +7,6 @@ from nca47.common.i18n import _
 from nca47.common.i18n import _LE
 from nca47.common.i18n import _LW
 
-
 LOG = logging.getLogger(__name__)
 
 exc_log_opts = [
@@ -17,7 +16,7 @@ exc_log_opts = [
                        'an exception message (a programming error). If True, '
                        'raise an exception; if False, use the unformatted '
                        'message.')),
-    ]
+]
 
 CONF = cfg.CONF
 CONF.register_opts(exc_log_opts)

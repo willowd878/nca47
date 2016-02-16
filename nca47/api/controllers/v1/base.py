@@ -1,9 +1,9 @@
 import exceptions as exc
 import functools
-import pecan
-from pecan import rest
 
 from oslo_log import log as logging
+import pecan
+from pecan import rest
 
 from nca47.common.i18n import _
 
