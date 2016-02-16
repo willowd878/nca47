@@ -117,7 +117,7 @@ def prepare_service(argv=[]):
                                          'neutronclient=WARNING',
                                          'glanceclient=WARNING',
                                          'urllib3.connectionpool=WARNING',
-    ])
+                                         ])
     config.parse_args(argv)
     log.setup(CONF, 'nca47')
 
