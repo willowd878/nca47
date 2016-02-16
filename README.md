@@ -20,6 +20,7 @@ pep8参考文档：
 配置git bash的用户变量
 
 > git config --global user.name "XXX"
+
 > git config --global user.email "XXX@XXXXXX.com"
 
 使用[官方指导文档](https://help.github.com/articles/generating-an-ssh-key/#platform-windows)的方法，配置git使用的ssh key。
@@ -36,8 +37,13 @@ pep8参考文档：
 commit message示例
 
 > ML2: Simplified boolean variable check
+
 > 
+
 > Currently 'flows' is being checked for empty list in a non standard 
+
 > way 'if flows == []:'. This patch simplifies logic so that above check
+
 > is unnecessary.
+
 
