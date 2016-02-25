@@ -57,7 +57,7 @@ class BaseRestController(rest.RestController):
     def get_one(self, req, id, *args, **kwargs):
         LOG.debug(_('id: %(id)s, args: %(args)s, kwargs: %(kwargs)s'),
                   {"id": id, "args": args, "kwargs": kwargs})
-        return self.get_one(req, id, *args, **kwargs)
+        return self._get_one(req, id, *args, **kwargs)
 
     def _post(self, req, *args, **kwargs):
         raise exc.NotImplementedError

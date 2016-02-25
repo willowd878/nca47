@@ -3,6 +3,7 @@
 # process, which may cause wedges in the gate later.
 pbr>=1.6 # Apache-2.0
 six>=1.9.0 # MIT
+SQLAlchemy<1.1.0,>=1.0.10 # MIT
 setuptools>=16.0 # PSF/ZPL
 pecan>=1.0.0 # BSD
 oslo.i18n>=2.1.0 # Apache-2.0
