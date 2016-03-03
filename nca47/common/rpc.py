@@ -3,6 +3,7 @@ import oslo_messaging as messaging
 
 from nca47.common import context as nca47_context
 from nca47.common import exception
+from oslo_messaging.rpc import dispatcher as rpc_dispatcher
 
 CONF = cfg.CONF
 TRANSPORT = None
@@ -26,9 +27,13 @@ TRANSPORT_ALIASES = {
 def init(conf):
     global TRANSPORT, NOTIFIER
     exmods = get_allowed_exmods()
-    TRANSPORT = messaging.get_transport(conf,
+    # TODO(yudazhao) remote url parameter, to use rabbit parameters in
+    # cfg.CONF properties
+    url = 'rabbit://stackrabbit:passw0rd@192.168.33.1:5672/'
+    TRANSPORT = messaging.get_transport(conf, url=url,
                                         allowed_remote_exmods=exmods,
                                         aliases=TRANSPORT_ALIASES)
+
     serializer = RequestContextSerializer(messaging.JsonPayloadSerializer())
     NOTIFIER = messaging.Notifier(TRANSPORT, serializer=serializer)
 
@@ -39,6 +44,10 @@ def cleanup():
     assert NOTIFIER is not None
     TRANSPORT.cleanup()
     TRANSPORT = NOTIFIER = None
+
+
+def initialized():
+    return None not in [TRANSPORT, NOTIFIER]
 
 
 def set_defaults(control_exchange):
@@ -72,10 +81,23 @@ class RequestContextSerializer(messaging.Serializer):
         return self._base.deserialize_entity(context, entity)
 
     def serialize_context(self, context):
-        return context.to_dict()
+        # TODO(yudazhao) context dict
+        # return context.to_dict()
+        return context
 
     def deserialize_context(self, context):
         return nca47_context.RequestContext.from_dict(context)
+
+
+class RPCDispatcher(rpc_dispatcher.RPCDispatcher):
+    def _dispatch(self, *args, **kwds):
+        try:
+            return super(RPCDispatcher, self)._dispatch(*args, **kwds)
+        except Exception as e:
+            if getattr(e, 'expected', False):
+                raise rpc_dispatcher.ExpectedException()
+            else:
+                raise
 
 
 def get_transport_url(url_str=None):
@@ -97,7 +119,7 @@ def get_server(target, endpoints, serializer=None):
     return messaging.get_rpc_server(TRANSPORT,
                                     target,
                                     endpoints,
-                                    executor='eventlet',
+                                    executor='blocking',
                                     serializer=serializer)
 
 

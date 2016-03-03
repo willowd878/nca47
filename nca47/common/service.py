@@ -1,14 +1,13 @@
-import signal
 import socket
+import abc
+import six
 
 from oslo_concurrency import processutils
 from oslo_config import cfg
-from oslo_context import context
 from oslo_log import log
 import oslo_messaging as messaging
 from oslo_service import service
 from oslo_service import wsgi
-from oslo_utils import importutils
 
 from nca47.api import app
 from nca47.common import config
@@ -37,68 +36,98 @@ LOG = log.getLogger(__name__)
 CONF.register_opts(service_opts)
 
 
-class RPCService(service.Service):
-    def __init__(self, host, manager_module, manager_class):
-        super(RPCService, self).__init__()
-        self.host = host
-        manager_module = importutils.try_import(manager_module)
-        manager_class = getattr(manager_module, manager_class)
-        self.manager = manager_class(host, manager_module.MANAGER_TOPIC)
-        self.topic = self.manager.topic
-        self.rpcserver = None
-        self.deregister = True
+@six.add_metaclass(abc.ABCMeta)
+class Service(service.Service):
+    """
+    Service class to be shared among the diverse service inside of Designate.
+    """
+    def __init__(self, threads=None):
+        threads = threads or 1000
+
+        super(Service, self).__init__(threads)
+
+        self._host = CONF.host
+        # self._service_config = CONF['service:%s' % self.service_name]
+
+        # NOTE(kiall): All services need RPC initialized, as this is used
+        #              for clients AND servers. Hence, this is common to
+        #              all Designate services.
+        if not rpc.initialized():
+            rpc.init(CONF)
+
+    @abc.abstractproperty
+    def service_name(self):
+        pass
+
+    def start(self):
+        super(Service, self).start()
+
+        LOG.info(_('Starting %(name)s service (version: %(version)s)'),
+                 {'name': self.service_name,
+                  'version': 'nca47 v1.0'})
+
+    def stop(self):
+        LOG.info(_('Stopping %(name)s service'), {'name': self.service_name})
+
+        super(Service, self).stop()
+
+
+class RPCService(object):
+    """
+    RPC Service mixin used by all Designate RPC Services
+    """
+    def __init__(self, *args, **kwargs):
+        super(RPCService, self).__init__(*args, **kwargs)
+
+        LOG.debug("Creating RPC Server on topic '%s'" % self._rpc_topic)
+        self._rpc_server = rpc.get_server(
+            messaging.Target(topic=self._rpc_topic, server=self._host),
+            self._rpc_endpoints)
+
+    @property
+    def _rpc_endpoints(self):
+        return [self]
+
+    @property
+    def _rpc_topic(self):
+        return self.service_name
 
     def start(self):
         super(RPCService, self).start()
-        admin_context = context.RequestContext('admin', 'admin', is_admin=True)
 
-        target = messaging.Target(topic=self.topic, server=self.host)
-        endpoints = [self.manager]
-        self.rpcserver = rpc.get_server(target, endpoints)
-        self.rpcserver.start()
+        LOG.debug("Starting RPC server on topic '%s'" % self._rpc_topic)
+        self._rpc_server.start()
 
-        self.handle_signal()
-        self.manager.init_host()
-        self.tg.add_dynamic_timer(
-            self.manager.periodic_tasks,
-            periodic_interval_max=CONF.periodic_interval,
-            context=admin_context)
+        # TODO(kiall): This probably belongs somewhere else, maybe the base
+        #              Service class?
+        self.notifier = rpc.get_notifier(self.service_name)
 
-        LOG.info(_LI('Created RPC server for service %(service)s on host '
-                     '%(host)s.'),
-                 {'service': self.topic, 'host': self.host})
+        for e in self._rpc_endpoints:
+            if e != self and hasattr(e, 'start'):
+                e.start()
 
     def stop(self):
+        LOG.debug("Stopping RPC server on topic '%s'" % self._rpc_topic)
+
+        for e in self._rpc_endpoints:
+            if e != self and hasattr(e, 'stop'):
+                e.stop()
+
+        # Try to shut the connection down, but if we get any sort of
+        # errors, go ahead and ignore them.. as we're shutting down anyway
         try:
-            self.rpcserver.stop()
-            self.rpcserver.wait()
-        except Exception as e:
-            LOG.exception(_LE('Service error occurred when stopping the '
-                              'RPC server. Error: %s'), e)
-        try:
-            self.manager.del_host(deregister=self.deregister)
-        except Exception as e:
-            LOG.exception(_LE('Service error occurred when cleaning up '
-                              'the RPC manager. Error: %s'), e)
+            self._rpc_server.stop()
+        except Exception:
+            pass
 
-        super(RPCService, self).stop(graceful=True)
-        LOG.info(_LI('Stopped RPC server for service %(service)s on host '
-                     '%(host)s.'),
-                 {'service': self.topic, 'host': self.host})
+        super(RPCService, self).stop()
 
-    def _handle_signal(self, signo, frame):
-        LOG.info(_LI('Got signal SIGUSR1. Not deregistering on next shutdown '
-                     'of service %(service)s on host %(host)s.'),
-                 {'service': self.topic, 'host': self.host})
-        self.deregister = False
+    def wait(self):
+        for e in self._rpc_endpoints:
+            if e != self and hasattr(e, 'wait'):
+                e.wait()
 
-    def handle_signal(self):
-        """Add a signal handler for SIGUSR1.
-
-        The handler ensures that the manager is not deregistered when it is
-        shutdown.
-        """
-        signal.signal(signal.SIGUSR1, self._handle_signal)
+        super(RPCService, self).wait()
 
 
 def prepare_service(argv=[]):
