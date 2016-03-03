@@ -101,3 +101,14 @@ class OperationNotPermitted(NotAuthorized):
 class Invalid(Nca47Exception):
     _msg_fmt = _("Unacceptable parameters.")
     code = http_client.BAD_REQUEST
+
+class BadRequest(Nca47Exception):
+    _msg_fmt = _('Bad %(resource)s request: %(msg)s.')
+
+
+class NotFound(Nca47Exception):
+    pass
+
+
+class Conflict(Nca47Exception):
+    pass

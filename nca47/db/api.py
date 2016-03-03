@@ -44,21 +44,21 @@ class Connection(object):
         """Constructor."""
 
     @abc.abstractmethod
-    def create_dns_server(self, dns_server):
-        """Create a new dns server"""
+    def create(self, model, values):
+        """Create an object."""
 
     @abc.abstractmethod
-    def delete_dns_server(self, id):
-        """Delete a dns server"""
+    def get_object(self, model, **kwargs):
+        """Get an object."""
 
     @abc.abstractmethod
-    def get_dns_server(self, id):
-        """Return a dns server"""
+    def get_objects(self, model, **kwargs):
+        """Get an object list."""
 
     @abc.abstractmethod
-    def list_dns_servers(self):
-        """Return dns server list"""
+    def update_object(self, model, id, values):
+        """Update an object."""
 
     @abc.abstractmethod
-    def update_dns_server(self, id, dns_server):
-        """Update a dns server"""
+    def delete_object(self, model, id):
+        """Delete an object."""

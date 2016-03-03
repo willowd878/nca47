@@ -1,4 +1,5 @@
 from oslo_db.sqlalchemy import models
+from oslo_utils import timeutils
 from oslo_utils import uuidutils
 import sqlalchemy as sa
 from sqlalchemy.ext import declarative
@@ -32,6 +33,12 @@ class Nca47Base(models.ModelBase,
 
     def next(self):
         self.__next__()
+
+    def soft_delete(self, session):
+        """Mark this object as deleted."""
+        self.deleted = True
+        self.deleted_at = timeutils.utcnow()
+        self.save(session=session)
 
 
 BASE = declarative.declarative_base(cls=Nca47Base)

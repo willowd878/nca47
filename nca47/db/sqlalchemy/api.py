@@ -1,15 +1,12 @@
 import threading
 
-from oslo_db import exception as db_exc
 from oslo_db.sqlalchemy import enginefacade
 from oslo_db.sqlalchemy import utils as oslo_db_utils
 from oslo_log import log
-from oslo_utils import strutils
 from oslo_utils import uuidutils
 
 from nca47.common import exception
 from nca47.db import api
-from nca47.db.sqlalchemy import models
 
 LOG = log.getLogger(__name__)
 
@@ -61,49 +58,43 @@ class Connection(api.Connection):
     def __init__(self):
         pass
 
-    def create_dns_server(self, server):
-        args = {
-            'id': uuidutils.generate_uuid(),
-            'name': server['name'],
-        }
-        dns_server = models.DnsServer(**args)
+    def create(self, model, values):
         with _session_for_write() as session:
-            try:
-                session.add(dns_server)
-                session.flush()
-            except db_exc.DBDuplicateEntry as exc:
-                raise exception.Nca47Exception(exc.message)
-            return dns_server
+            if 'id' not in values:
+                values['id'] = uuidutils.generate_uuid()
+            db_obj = model(**values)
+            session.add(db_obj)
+            session.flush()
+        return db_obj
 
-    def delete_dns_server(self, id):
-        with _session_for_write():
-            query = model_query(models.DnsServer)
-            query = add_identity_filter(query, id)
-            query.delete()
-
-    def get_dns_server(self, id):
+    def get_object(self, model, **kwargs):
         with _session_for_read():
-            query = model_query(models.DnsServer)
-            query = add_identity_filter(query, id)
-            dns_server_ref = query.one()
-            return dns_server_ref
+            query = model_query(model)
+            query = query.filter_by(**kwargs)
+            db_obj = query.one()
+            return db_obj
 
-    def list_dns_servers(self):
+    def get_objects(self, model, **kwargs):
         with _session_for_read():
-            query = model_query(models.DnsServer)
-            dns_servers_ref = query.all()
-            return dns_servers_ref
+            query = model_query(model)
+            query = query.filter_by(**kwargs)
+            db_obj_list = query.all()
+            return db_obj_list
 
-    def update_dns_server(self, id, values):
-        try:
-            return self._do_update_dns_server(id, values)
-        except Exception as e:
-            raise e
+    def _safe_get_object(self, model, id):
+        db_obj = self.get_object(model, id=id)
+        if db_obj is None:
+            raise exception.NotFound()
+        return db_obj
 
-    def _do_update_dns_server(self, id, values):
+    def update_object(self, model, id, values):
         with _session_for_write():
-            query = model_query(models.DnsServer)
-            query = add_identity_filter(query, id)
-            ref = query.with_lockmode('update').one()
-            ref.update(values)
-        return ref
+            db_obj = self._safe_get_object(model, id)
+            db_obj.update(values)
+        return db_obj
+
+    def delete_object(self, model, id):
+        """Delete an object."""
+        with _session_for_write() as session:
+            query = self._safe_get_object(model, id)
+            query.soft_delete(session)
