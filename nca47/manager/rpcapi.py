@@ -45,7 +45,7 @@ class DNSManagerAPI(object):
     # Zone Methods
     def create_zone(self, context, zone):
         LOG.info(_LI("create_zone: Calling central's create_zone."))
-        return self.client.cast(context, 'create_zone', zone=zone)
+        return self.client.call(context, 'create_zone', zone=zone)
 
     def get_zone(self, context, zone_id):
         LOG.info(_LI("get_zone: Calling central's get_zone."))

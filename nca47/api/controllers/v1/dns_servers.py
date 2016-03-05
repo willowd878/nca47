@@ -4,6 +4,7 @@ from nca47.api.controllers.v1 import base
 from nca47.common.i18n import _
 from nca47.db import api as db_api
 from nca47.db.sqlalchemy.models import DnsServer
+from nca47.manager import rpcapi
 
 LOG = logging.getLogger(__name__)
 
@@ -11,14 +12,18 @@ LOG = logging.getLogger(__name__)
 class DnsServersController(base.BaseRestController):
     def __init__(self):
         self.db_api = db_api.get_instance()
+        
+        self.rpcapi = rpcapi.DNSManagerAPI.get_instance()
         super(DnsServersController, self).__init__()
 
-    def _post(self, req, server, *args, **kwargs):
+    def _post(self, req, *args, **kwargs):
         LOG.debug(
             _("server is %(server)s, args is %(args)s, kwargs is %(kwargs)s"),
-            {"server": server, "args": args, "kwargs": kwargs})
-        dns_server = self.db_api.create(DnsServer, server)
-        return dns_server
+            {"server": 'server', "args": args, "kwargs": kwargs})
+        #dns_server = self.db_api.create(DnsServer, server)
+        cxt = {}
+        response = self.rpcapi.create_zone(cxt, req.body)
+        return response
 
     def _put(self, req, id, *args, **kwargs):
         values = kwargs['server']

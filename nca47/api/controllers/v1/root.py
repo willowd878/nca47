@@ -1,6 +1,6 @@
 import pecan
 
-from nca47.api.controllers.v1 import dns_servers
+from nca47.api.controllers.v1 import dns_zones
 
 
 class V1Controller(object):
@@ -13,7 +13,7 @@ class V1Controller(object):
 
     @pecan.expose()
     def _lookup(self, kind, *remainder):
-        if kind == 'dns_servers':
-            return dns_servers.DnsServersController(), remainder
+        if kind == 'dns_zones':
+            return dns_zones.DnsZones(), remainder
         else:
             pecan.abort(404)

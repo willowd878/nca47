@@ -29,10 +29,13 @@ def init(conf):
     exmods = get_allowed_exmods()
     # TODO(yudazhao) remote url parameter, to use rabbit parameters in
     # cfg.CONF properties
-    url = 'rabbit://stackrabbit:passw0rd@192.168.33.1:5672/'
-    TRANSPORT = messaging.get_transport(conf, url=url,
+    url = 'rabbit://stackrabbit:passw0rd@192.168.51.150:5672/'
+    TRANSPORT = messaging.get_transport(conf,
                                         allowed_remote_exmods=exmods,
                                         aliases=TRANSPORT_ALIASES)
+    
+    import pdb
+    pdb.set_trace()
 
     serializer = RequestContextSerializer(messaging.JsonPayloadSerializer())
     NOTIFIER = messaging.Notifier(TRANSPORT, serializer=serializer)

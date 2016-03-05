@@ -4,7 +4,7 @@ from nca47.common import rpc
 from nca47 import version
 
 
-def parse_args(argv, default_config_files=None):
+def parse_args(argv, default_config_files=['/vagrant/nca47/etc/nca47.conf']):
     rpc.set_defaults(control_exchange='nca47')
     cfg.CONF(argv[1:],
              project='nca47',

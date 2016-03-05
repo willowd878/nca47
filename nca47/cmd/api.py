@@ -1,6 +1,6 @@
 """The nca47 Service API."""
 import sys
-
+sys.path.append('/vagrant/nca47')
 from oslo_config import cfg
 from oslo_log import log
 
@@ -14,12 +14,14 @@ LOG = log.getLogger(__name__)
 def main():
     # Parse config file and command line options, then start logging
     nca47_service.prepare_service(sys.argv)
-
+    CONF(default_config_files=['/vagrant/nca47/etc/nca47.conf'])
     # Build and start the WSGi app
     launcher = nca47_service.process_launcher()
     server = nca47_service.WSGIService('nca47_api', CONF.api.enable_ssl_api)
     launcher.launch_service(server, workers=server.workers)
     launcher.wait()
+    
+    
 
 
 if __name__ == '__main__':

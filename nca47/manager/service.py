@@ -30,8 +30,8 @@ class Service(service.RPCService, service.Service):
     # Zone Methods
     def create_zone(self, context, zone):
         LOG.info(_LI("create_zone: Replying rpc client's create_zone."))
-        print 'create_zone'
-        return 'create_zone'
+        print zone
+        return zone
 
     def get_zone(self, context, zone_id):
         LOG.info(_LI("get_zone: Replying rpc client's get_zone."))
