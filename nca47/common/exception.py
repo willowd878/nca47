@@ -2,12 +2,12 @@ from oslo_config import cfg
 from oslo_log import log as logging
 import six
 from six.moves import http_client
-
 from nca47.common.i18n import _
 from nca47.common.i18n import _LE
 from nca47.common.i18n import _LW
 
 LOG = logging.getLogger(__name__)
+
 
 exc_log_opts = [
     cfg.BoolOpt('fatal_exception_format_errors',
@@ -102,13 +102,48 @@ class Invalid(Nca47Exception):
     _msg_fmt = _("Unacceptable parameters.")
     code = http_client.BAD_REQUEST
 
+
+class checkParam(Nca47Exception):
+    _msg_fmt = _("check param :%(param_name)s is errored")
+
+
+class checkBody(Nca47Exception):
+    _msg_fmt = _("check body is None!")
+    code = http_client.BAD_REQUEST
+
+
 class BadRequest(Nca47Exception):
     _msg_fmt = _('Bad %(resource)s request: %(msg)s.')
 
 
 class NotFound(Nca47Exception):
-    pass
+    _msg_fmt = _("Resource could not be found.")
+    code = http_client.NOT_FOUND
 
 
 class Conflict(Nca47Exception):
     pass
+
+
+class NonExistDevices(NotFound):
+    _msg_fmt = _("some devices don't exist any more")
+
+
+class DriverNotFound(NotFound):
+    _msg_fmt = _("Could not find the following driver(s): %(driver_name)s.")
+
+
+class ParamNull(Nca47Exception):
+    _msg_fmt = _("the values of the %(param_name)s is null")
+
+
+class ParamFormatError(Nca47Exception):
+    _msg_fmt = _("the values of the %(param_name)s format error")
+
+
+class NonExistParam(Nca47Exception):
+    _msg_fmt = _("please input the %(param_name)s")
+
+
+class ParamValueError(Nca47Exception):
+    _msg_fmt = _("the value of the %(param_name)s is error")

@@ -384,3 +384,17 @@
 # Sets the list of available ciphers. value should be a string
 # in the OpenSSL cipher list format. (string value)
 #ciphers=<None>
+
+# Device drivers settings
+[backend_driver]
+
+#dns_driver = zdns
+#firewall_driver = fake
+
+[zdns_agent]
+
+#host_ip = 127.0.0.1
+#port = 20120
+#view_id = default
+#user_id=admin
+#password=zdns

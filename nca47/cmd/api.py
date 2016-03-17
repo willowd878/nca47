@@ -1,6 +1,6 @@
 """The nca47 Service API."""
 import sys
-
+sys.path.append('/vagrant/nca47')
 from oslo_config import cfg
 from oslo_log import log
 
