@@ -1,5 +1,7 @@
 import pecan
 
+from nca47.api.controllers.v1 import dns_records, cache_clean
+from nca47.api.controllers.v1 import dns_zones
 from nca47.api.controllers.v1 import dns_servers
 
 
@@ -13,7 +15,13 @@ class V1Controller(object):
 
     @pecan.expose()
     def _lookup(self, kind, *remainder):
-        if kind == 'dns_servers':
+        if kind == 'dns_records':
+            return dns_records.DnsRecordsController(), remainder
+        elif kind == 'dns_zones':
+            return dns_zones.DnsZones(), remainder
+        elif kind == 'cache_clean':
+            return cache_clean.CacheCleanController(), remainder
+        elif kind == "dns_servers":
             return dns_servers.DnsServersController(), remainder
         else:
             pecan.abort(404)

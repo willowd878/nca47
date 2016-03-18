@@ -1,6 +1,7 @@
 from oslo_config import cfg
 
 from nca47.common.i18n import _
+from oslo_messaging._drivers.impl_rabbit import rabbit_opts
 
 API_SERVICE_OPTS = [
     cfg.StrOpt('host_ip',
@@ -35,6 +36,8 @@ API_SERVICE_OPTS = [
                        "will want to change public API endpoint to represent "
                        "SSL termination URL with 'public_endpoint' option.")),
 ]
+
+rabbit_opts
 
 CONF = cfg.CONF
 opt_group = cfg.OptGroup(name='api',

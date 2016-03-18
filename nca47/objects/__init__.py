@@ -1,1 +1,1 @@
-__author__ = 'liudong'
+from nca47.objects.dns_zone import DnsZone

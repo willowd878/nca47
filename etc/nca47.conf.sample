@@ -25,6 +25,9 @@
 # value)
 #host=localhost
 
+# The messaging driver to use, defaults to rabbit. Other drivers include amqp
+# and zmq. (string value)
+#rpc_backend = rabbit
 
 #
 # Options defined in oslo.log
@@ -384,3 +387,239 @@
 # Sets the list of available ciphers. value should be a string
 # in the OpenSSL cipher list format. (string value)
 #ciphers=<None>
+
+[oslo_messaging_rabbit]
+
+#
+# From oslo.messaging
+#
+
+# Determines how the next RabbitMQ node is chosen in case the one we are
+# currently connected to becomes unavailable. Takes effect only if more than
+# one RabbitMQ node is provided in config. (string value)
+# Allowed values: round-robin, shuffle
+#kombu_failover_strategy = round-robin
+
+# Maximum number of RabbitMQ connection retries. Default is 0 (infinite retry
+# count). (integer value)
+# Deprecated group/name - [DEFAULT]/rabbit_max_retries
+#rabbit_max_retries = 0
+
+# How long to wait a missing client beforce abandoning to send it its replies.
+# This value should not be longer than rpc_response_timeout. (integer value)
+# Deprecated group/name - [DEFAULT]/kombu_reconnect_timeout
+#kombu_missing_consumer_retry_timeout = 60
+
+# The RabbitMQ broker address where a single node is used. (string value)
+# Deprecated group/name - [DEFAULT]/rabbit_host
+#rabbit_host = localhost
+
+# The RabbitMQ virtual host. (string value)
+# Deprecated group/name - [DEFAULT]/rabbit_virtual_host
+#rabbit_virtual_host = /
+
+# How long to backoff for between retries when connecting to RabbitMQ. (integer
+# value)
+# Deprecated group/name - [DEFAULT]/rabbit_retry_backoff
+#rabbit_retry_backoff = 2
+
+# Determines how the next RabbitMQ node is chosen in case the one we are
+# currently connected to becomes unavailable. Takes effect only if more than
+# one RabbitMQ node is provided in config. (string value)
+# Allowed values: round-robin, shuffle
+#kombu_failover_strategy = round-robin
+
+# RabbitMQ HA cluster host:port pairs. (list value)
+# Deprecated group/name - [DEFAULT]/rabbit_hosts
+#rabbit_hosts = $rabbit_host:$rabbit_port
+
+# Maximum number of RabbitMQ connection retries. Default is 0 (infinite retry
+# count). (integer value)
+# Deprecated group/name - [DEFAULT]/rabbit_max_retries
+#rabbit_max_retries = 0
+
+# The RabbitMQ broker port where a single node is used. (port value)
+# Minimum value: 1
+# Maximum value: 65535
+# Deprecated group/name - [DEFAULT]/rabbit_port
+#rabbit_port = 5672
+
+# Use HA queues in RabbitMQ (x-ha-policy: all). If you change this option, you
+# must wipe the RabbitMQ database. (boolean value)
+# Deprecated group/name - [DEFAULT]/rabbit_ha_queues
+#rabbit_ha_queues = false
+
+# Use durable queues in AMQP. (boolean value)
+# Deprecated group/name - [DEFAULT]/amqp_durable_queues
+# Deprecated group/name - [DEFAULT]/rabbit_durable_queues
+#amqp_durable_queues = false
+
+# SSL version to use (valid only if SSL enabled). Valid values are TLSv1 and
+# SSLv23. SSLv2, SSLv3, TLSv1_1, and TLSv1_2 may be available on some
+# distributions. (string value)
+# Deprecated group/name - [DEFAULT]/kombu_ssl_version
+#kombu_ssl_version =
+
+# How long to wait before reconnecting in response to an AMQP consumer cancel
+# notification. (floating point value)
+# Deprecated group/name - [DEFAULT]/kombu_reconnect_delay
+#kombu_reconnect_delay = 1.0
+
+# RabbitMQ HA cluster host:port pairs. (list value)
+# Deprecated group/name - [DEFAULT]/rabbit_hosts
+#rabbit_hosts = $rabbit_host:$rabbit_port
+
+# The RabbitMQ login method. (string value)
+# Deprecated group/name - [DEFAULT]/rabbit_login_method
+#rabbit_login_method = AMQPLAIN
+
+# Use HA queues in RabbitMQ (x-ha-policy: all). If you change this option, you
+# must wipe the RabbitMQ database. (boolean value)
+# Deprecated group/name - [DEFAULT]/rabbit_ha_queues
+#rabbit_ha_queues = false
+
+# Number of seconds after which the Rabbit broker is considered down if
+# heartbeat's keep-alive fails (0 disable the heartbeat). EXPERIMENTAL (integer
+# value)
+#heartbeat_timeout_threshold = 60
+
+# Use durable queues in AMQP. (boolean value)
+# Deprecated group/name - [DEFAULT]/amqp_durable_queues
+# Deprecated group/name - [DEFAULT]/rabbit_durable_queues
+#amqp_durable_queues = false
+
+# Auto-delete queues in AMQP. (boolean value)
+# Deprecated group/name - [DEFAULT]/amqp_auto_delete
+#amqp_auto_delete = false
+
+# SSL cert file (valid only if SSL enabled). (string value)
+# Deprecated group/name - [DEFAULT]/kombu_ssl_certfile
+#kombu_ssl_certfile =
+
+# Connect over SSL for RabbitMQ. (boolean value)
+# Deprecated group/name - [DEFAULT]/rabbit_use_ssl
+#rabbit_use_ssl = false
+
+# The RabbitMQ userid. (string value)
+# Deprecated group/name - [DEFAULT]/rabbit_userid
+#rabbit_userid = guest
+
+# SSL version to use (valid only if SSL enabled). Valid values are TLSv1 and
+# SSLv23. SSLv2, SSLv3, TLSv1_1, and TLSv1_2 may be available on some
+# distributions. (string value)
+# Deprecated group/name - [DEFAULT]/kombu_ssl_version
+#kombu_ssl_version =
+
+# The RabbitMQ password. (string value)
+# Deprecated group/name - [DEFAULT]/rabbit_password
+#rabbit_password = guest
+
+# The RabbitMQ userid. (string value)
+# Deprecated group/name - [DEFAULT]/rabbit_userid
+#rabbit_userid = guest
+
+# SSL key file (valid only if SSL enabled). (string value)
+# Deprecated group/name - [DEFAULT]/kombu_ssl_keyfile
+#kombu_ssl_keyfile =
+
+# How long to backoff for between retries when connecting to RabbitMQ. (integer
+# value)
+# Deprecated group/name - [DEFAULT]/rabbit_retry_backoff
+#rabbit_retry_backoff = 2
+
+# How often times during the heartbeat_timeout_threshold we check the
+# heartbeat. (integer value)
+#heartbeat_rate = 2
+
+# SSL key file (valid only if SSL enabled). (string value)
+# Deprecated group/name - [DEFAULT]/kombu_ssl_keyfile
+#kombu_ssl_keyfile =
+
+# The RabbitMQ broker port where a single node is used. (port value)
+# Minimum value: 1
+# Maximum value: 65535
+# Deprecated group/name - [DEFAULT]/rabbit_port
+#rabbit_port = 5672
+
+# The RabbitMQ password. (string value)
+# Deprecated group/name - [DEFAULT]/rabbit_password
+#rabbit_password = guest
+
+# How often times during the heartbeat_timeout_threshold we check the
+# heartbeat. (integer value)
+#heartbeat_rate = 2
+
+# SSL cert file (valid only if SSL enabled). (string value)
+# Deprecated group/name - [DEFAULT]/kombu_ssl_certfile
+#kombu_ssl_certfile =
+
+# The RabbitMQ login method. (string value)
+# Deprecated group/name - [DEFAULT]/rabbit_login_method
+#rabbit_login_method = AMQPLAIN
+
+# Auto-delete queues in AMQP. (boolean value)
+# Deprecated group/name - [DEFAULT]/amqp_auto_delete
+#amqp_auto_delete = false
+
+# SSL certification authority file (valid only if SSL enabled). (string value)
+# Deprecated group/name - [DEFAULT]/kombu_ssl_ca_certs
+#kombu_ssl_ca_certs =
+
+# Deprecated, use rpc_backend=kombu+memory or rpc_backend=fake (boolean value)
+# Deprecated group/name - [DEFAULT]/fake_rabbit
+#fake_rabbit = false
+
+# Number of seconds after which the Rabbit broker is considered down if
+# heartbeat's keep-alive fails (0 disable the heartbeat). EXPERIMENTAL (integer
+# value)
+#heartbeat_timeout_threshold = 60
+
+# The RabbitMQ virtual host. (string value)
+# Deprecated group/name - [DEFAULT]/rabbit_virtual_host
+#rabbit_virtual_host = /
+
+# Deprecated, use rpc_backend=kombu+memory or rpc_backend=fake (boolean value)
+# Deprecated group/name - [DEFAULT]/fake_rabbit
+#fake_rabbit = false
+
+# How long to wait before reconnecting in response to an AMQP consumer cancel
+# notification. (floating point value)
+# Deprecated group/name - [DEFAULT]/kombu_reconnect_delay
+#kombu_reconnect_delay = 1.0
+
+# How frequently to retry connecting with RabbitMQ. (integer value)
+#rabbit_retry_interval = 1
+
+# Connect over SSL for RabbitMQ. (boolean value)
+# Deprecated group/name - [DEFAULT]/rabbit_use_ssl
+#rabbit_use_ssl = false
+
+# How long to wait a missing client beforce abandoning to send it its replies.
+# This value should not be longer than rpc_response_timeout. (integer value)
+# Deprecated group/name - [DEFAULT]/kombu_reconnect_timeout
+#kombu_missing_consumer_retry_timeout = 60
+
+# SSL certification authority file (valid only if SSL enabled). (string value)
+# Deprecated group/name - [DEFAULT]/kombu_ssl_ca_certs
+#kombu_ssl_ca_certs =
+
+# How frequently to retry connecting with RabbitMQ. (integer value)
+#rabbit_retry_interval = 1
+
+# The RabbitMQ broker address where a single node is used. (string value)
+# Deprecated group/name - [DEFAULT]/rabbit_host
+#rabbit_host = localhost
+
+# Device drivers settings
+[backend_driver]
+
+#dns_driver = zdns
+#firewall_driver = fake
+
+[zdns_agent]
+
+#host_ip = 127.0.0.1
+#port = 20120
+#view_id = default
+#user_id=admin
+#password=zdns

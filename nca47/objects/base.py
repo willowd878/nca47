@@ -10,6 +10,10 @@ from nca47.common import exception
 from nca47.db import api as db_api
 
 
+class NotSpecifiedSentinel:
+    pass
+
+
 class ObjectUpdateForbidden(exception.Nca47Exception):
     _msg_fmt = _("Unable to update the following object fields: %(fields)s")
 
@@ -42,10 +46,14 @@ class Nca47Object(obj_base.VersionedObject,
 
     def __init__(self, context=None, **kwargs):
         super(Nca47Object, self).__init__(context, **kwargs)
-        self.obj_set_defaults()
 
     def to_dict(self):
         return dict(self.items())
+
+    def as_dict(self):
+        return dict((k, getattr(self, k))
+                    for k in self.fields
+                    if hasattr(self, k))
 
     @classmethod
     def clean_obj_from_primitive(cls, primitive, context=None):
@@ -71,13 +79,16 @@ class Nca47Object(obj_base.VersionedObject,
     def get_objects(cls, context, **kwargs):
         raise NotImplementedError()
 
-    def create(self):
+    def create(self, context, values):
         raise NotImplementedError()
 
     def update(self):
         raise NotImplementedError()
 
     def delete(self):
+        raise NotImplementedError()
+
+    def get_object(self, context, values):
         raise NotImplementedError()
 
 

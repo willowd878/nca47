@@ -27,12 +27,11 @@ TRANSPORT_ALIASES = {
 def init(conf):
     global TRANSPORT, NOTIFIER
     exmods = get_allowed_exmods()
-    # TODO(yudazhao) remote url parameter, to use rabbit parameters in
-    # cfg.CONF properties
-    url = 'rabbit://stackrabbit:passw0rd@192.168.33.1:5672/'
-    TRANSPORT = messaging.get_transport(conf, url=url,
-                                        allowed_remote_exmods=exmods,
+    TRANSPORT = messaging.get_transport(conf, allowed_remote_exmods=exmods,
                                         aliases=TRANSPORT_ALIASES)
+    
+    import pdb
+    pdb.set_trace()
 
     serializer = RequestContextSerializer(messaging.JsonPayloadSerializer())
     NOTIFIER = messaging.Notifier(TRANSPORT, serializer=serializer)
@@ -119,7 +118,7 @@ def get_server(target, endpoints, serializer=None):
     return messaging.get_rpc_server(TRANSPORT,
                                     target,
                                     endpoints,
-                                    executor='blocking',
+                                    executor='threading',
                                     serializer=serializer)
 
 
