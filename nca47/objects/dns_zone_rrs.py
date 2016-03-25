@@ -13,13 +13,13 @@ class DnsZoneRrs(base.Nca47Object):
         'rrs_name': object_fields.StringField(),
         'type': object_fields.ListOfStringsField(),
         'klass': object_fields.StringField(),
-        'data': object_fields.StringField(),
-        'operation_fro': object_fields.StringField(default='MANUAL'),
+        'ttl': object_fields.StringField(),
+        'rdata': object_fields.StringField(),
+        'operation_fro': object_fields.StringField(),
     }
 
     def __init__(self, context=None, **kwarg):
         self.db_api = db_api.get_instance()
-        self.obj_set_defaults()
         super(DnsZoneRrs, self).__init__(context=None, **kwarg)
 
     @staticmethod
@@ -40,10 +40,18 @@ class DnsZoneRrs(base.Nca47Object):
         zone = self.db_api.create(ZoneRecord, values)
         return zone
 
-    def update(self, context, values):
-        zone = self.db_api.update(ZoneRecord, values)
-        return zone
+    def update(self, context, id, values):
+        record = self.db_api.update_object(ZoneRecord, id, values)
+        return record
+
+    def delete(self, context, id):
+        record = self.db_api.delete_object(ZoneRecord, id)
+        return record
+
+    def get_objects(self, context, **values):
+        record = self.db_api.get_objects(ZoneRecord, **values)
+        return record
 
     def get_object(self, context, **values):
-        zone = self.db_api.get_object(ZoneRecord, **values)
-        return zone
+        record = self.db_api.get_object(ZoneRecord, **values)
+        return record

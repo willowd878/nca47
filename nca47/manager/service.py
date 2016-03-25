@@ -56,15 +56,15 @@ class DNSService(service.RPCService, service.Service):
         response = self.agent.delete_zone(context, zone, zone_id)
         return response
 
-    def get_zone(self, context, zone, zone_id):
-        LOG.info(_LI("get_zone: Replying rpc client's "
+    def get_zone_one(self, context, zone_id):
+        LOG.info(_LI("get_zone_one: Replying rpc client's "
                      "get_zone_one."))
-        response = self.agent.get_zone_one(context, zone, zone_id)
+        response = self.agent.get_zone_one(context, zone_id)
         return response
 
-    def get_all_zone(self, context, zone):
-        LOG.info(_LI("get_all_zone: Replying rpc client's get_zone."))
-        response = self.agent.get_zone(context, zone)
+    def get_zones(self, context):
+        LOG.info(_LI("get_zones: Replying rpc client's get_zones."))
+        response = self.agent.get_zones(context)
         return response
 
     # Zone_records Methods
@@ -75,7 +75,6 @@ class DNSService(service.RPCService, service.Service):
 
     def get_records(self, context, records_dic, zone_id):
         LOG.info(_LI("get_records: Calling central's get_zone_record."))
-        # response = self.agent.create_zone_record(context, records_dic)
         response = self.agent.get_rrs(context, records_dic, zone_id)
         return response
 

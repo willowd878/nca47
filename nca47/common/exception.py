@@ -125,6 +125,11 @@ class Conflict(Nca47Exception):
     pass
 
 
+class HaveSameObject(Nca47Exception):
+    _msg_fmt = _("The object with name= %(object_name)s already exists")
+    code = http_client.BAD_REQUEST
+
+
 class NonExistDevices(NotFound):
     _msg_fmt = _("some devices don't exist any more")
 
@@ -147,3 +152,11 @@ class NonExistParam(Nca47Exception):
 
 class ParamValueError(Nca47Exception):
     _msg_fmt = _("the value of the %(param_name)s is error")
+
+
+class IsNotExistError(Nca47Exception):
+    _msg_fmt = _("The object of %(param_name)s don't exist!")
+
+
+class DBError(Nca47Exception):
+    _msg_fmt = _("DB error happened in %(param_name)s method")

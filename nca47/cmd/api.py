@@ -20,8 +20,6 @@ def main():
     server = nca47_service.WSGIService('nca47_api', CONF.api.enable_ssl_api)
     launcher.launch_service(server, workers=server.workers)
     launcher.wait()
-    
-    
 
 
 if __name__ == '__main__':

@@ -15,11 +15,11 @@ class V1Controller(object):
 
     @pecan.expose()
     def _lookup(self, kind, *remainder):
-        if kind == 'dns_records':
+        if kind == 'record':
             return dns_records.DnsRecordsController(), remainder
-        elif kind == 'dns_zones':
+        elif kind == 'zones':
             return dns_zones.DnsZones(), remainder
-        elif kind == 'cache_clean':
+        elif kind == 'cache':
             return cache_clean.CacheCleanController(), remainder
         elif kind == "dns_servers":
             return dns_servers.DnsServersController(), remainder

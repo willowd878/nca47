@@ -16,7 +16,7 @@ class DnsServer(model_base.BASE, HasId):
     name = sa.Column(sa.String(attr.NAME_MAX_LEN))
 
 
-class DnsZone(model_base.BASE, HasId):
+class Zone(model_base.BASE, HasId):
     """Represents a dns zone."""
 
     __tablename__ = 'dns_zone_info'
@@ -38,12 +38,11 @@ class ZoneRecord(model_base.BASE, HasId):
     """Represents a dns zone."""
 
     __tablename__ = 'dns_rrs_info'
-
     zone_id = sa.Column(sa.String(attr.NAME_MAX_LEN))
-    res_id = sa.Column(sa.String(attr.NAME_MAX_LEN))
-    zone_id = sa.Column(sa.String(attr.NAME_MAX_LEN))
+    rrs_id = sa.Column(sa.String(attr.NAME_MAX_LEN))
     rrs_name = sa.Column(sa.String(attr.NAME_MAX_LEN))
     type = sa.Column(sa.String(attr.NAME_MAX_LEN))
-    klaas = sa.Column(sa.String(attr.NAME_MAX_LEN))
-    data = sa.Column(sa.String(attr.NAME_MAX_LEN))
+    klass = sa.Column(sa.String(attr.NAME_MAX_LEN))
+    ttl = sa.Column(sa.String(attr.NAME_MAX_LEN))
+    rdata = sa.Column(sa.String(attr.NAME_MAX_LEN))
     operation_fro = sa.Column(sa.String(attr.NAME_MAX_LEN))
