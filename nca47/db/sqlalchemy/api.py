@@ -52,6 +52,13 @@ def add_identity_filter(query, id):
         raise exception.Invalid("invalid id")
 
 
+def beginSession(sess):
+    try:
+        sess.begin_nested()
+    except:
+        sess.begin(subtransactions=True)
+
+
 class Connection(api.Connection):
     """SqlAlchemy connection."""
 
@@ -63,8 +70,14 @@ class Connection(api.Connection):
             if 'id' not in values:
                 values['id'] = uuidutils.generate_uuid()
             db_obj = model(**values)
-            session.add(db_obj)
-            session.flush()
+            beginSession(session)
+            try:
+                session.add(db_obj)
+                session.flush()
+                session.commit()
+            except Exception:
+                session.rollback()
+                raise exception.DBError(param_name="CREATE")
         return db_obj
 
     def get_object(self, model, **kwargs):
@@ -88,13 +101,26 @@ class Connection(api.Connection):
         return db_obj
 
     def update_object(self, model, id, values):
-        with _session_for_write():
+        with _session_for_write() as session:
             db_obj = self._safe_get_object(model, id)
-            db_obj.update(values)
+            beginSession(session)
+            try:
+                db_obj.update(values)
+                session.commit()
+            except Exception:
+                session.rollback()
+                raise exception.DBError(param_name="UPDATE")
         return db_obj
 
     def delete_object(self, model, id):
         """Delete an object."""
         with _session_for_write() as session:
+            beginSession(session)
             query = self._safe_get_object(model, id)
-            query.soft_delete(session)
+            try:
+                query.soft_delete(session)
+                session.commit()
+            except Exception:
+                session.rollback()
+                raise exception.DBError(param_name="UPDATE")
+        return query

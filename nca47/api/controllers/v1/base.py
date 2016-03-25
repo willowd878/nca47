@@ -28,6 +28,9 @@ class BaseRestController(rest.RestController):
     """
     A base class implement pecan RestController.
     """
+    @property
+    def response(self):
+        return pecan.response
 
     @expose
     def post(self, req, *args, **kwargs):
@@ -73,4 +76,3 @@ class BaseRestController(rest.RestController):
 
     def show(self, req, id, *args, **kwargs):
         raise exc.NotImplementedError
-    

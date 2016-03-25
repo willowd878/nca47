@@ -2,6 +2,8 @@ from oslo_config import cfg
 from oslo_log import log as logging
 from nca47.common.i18n import _
 from nca47.common.i18n import _LI
+from nca47.common.exception_zdns import ZdnsErrMessage
+from nca47.common.exception import NonExistDevices
 import requests
 import json
 CONF = cfg.CONF
@@ -19,12 +21,13 @@ ZONES_AGENT_OPTS = [
     cfg.StrOpt('view_id',
                default='telecom',
                help=_('The TCP view_id on which nca47-zdns_driver listens.')),
-    cfg.StrOpt('user_id',
+    cfg.StrOpt('auth_name',
                default='admin',
-               help=_('The TCP view_id on which nca47-zdns_driver listens.')),
-    cfg.StrOpt('password',
+               help=_('The TCP auth_name on which nca47-zdns_driver'
+                      'listens.')),
+    cfg.StrOpt('auth_pw',
                default='zdns',
-               help=_('The TCP view_id on which nca47-zdns_driver listens.')),
+               help=_('The TCP auth_pw on which nca47-zdns_driver listens.')),
 ]
 
 CONF = cfg.CONF
@@ -36,9 +39,11 @@ CONF.register_opts(ZONES_AGENT_OPTS, opt_group)
 
 class dns_zone_driver():
     def __init__(self):
-        self.host = 'http://' + CONF.zdns_agent.host_ip
+        self.host = 'https://' + CONF.zdns_agent.host_ip
         self.port = CONF.zdns_agent.port
         self.view_id = CONF.zdns_agent.view_id
+        self.auth_name = CONF.zdns_agent.auth_name
+        self.auth_pw = CONF.zdns_agent.auth_pw
 
     @classmethod
     def get_instance(cls):
@@ -52,12 +57,16 @@ class dns_zone_driver():
         url = (self.host + ":" + str(self.port) +
                '/views/' + self.view_id + '/zones')
         headers = {'Content-type': 'application/json'}
-        zone = self.make_zone_object(zone.as_dict())
         data = json.dumps(zone)
+        auth = (self.auth_name, self.auth_pw)
         LOG.info(_LI("create zones:"+url))
-        request = requests.post(url, data=data,
-                                headers=headers, verify=False)
-        return request.json()
+        response = requests.post(url, data=data,
+                                 headers=headers, auth=auth, verify=False)
+        if response.status_code is None:
+            raise NonExistDevices
+        if response.status_code is not 200:
+            raise ZdnsErrMessage(response.status_code)
+        return response.json()
 
     def update_zone_owners(self, context, zone, zone_id):
         """   update zones  owners    """
@@ -65,113 +74,151 @@ class dns_zone_driver():
                self.view_id + '/zones/' + zone_id + '/owners')
         headers = {'Content-type': 'application/json'}
         data = json.dumps(zone)
+        auth = (self.auth_name, self.auth_pw)
         LOG.info(_LI("update zones owners:"+url))
-        request = requests.get(url, data=data,
-                               headers=headers, verify=False)
-        return request.json()
+        response = requests.get(url, data=data,
+                                headers=headers, auth=auth, verify=False)
+        if response.status_code is None:
+            raise NonExistDevices
+        if response.status_code is not 200:
+            raise ZdnsErrMessage(response.status_code)
+        return response.json()
 
     def update_zone(self, context, zone, zone_id):
         """   update zones    """
-        url = (self.host + '/zones/' + str(self.port) +
+        url = (self.host + ":" + str(self.port) +
                '/views/' + self.view_id + '/zones/' + zone_id)
         headers = {'Content-type': 'application/json'}
         data = json.dumps(zone)
+        auth = (self.auth_name, self.auth_pw)
         LOG.info(_LI("update zones :"+url))
-        request = requests.put(url=url, data=data,
-                               headers=headers, verify=False)
-        return request.json()
+        response = requests.put(url=url, data=data,
+                                headers=headers, auth=auth, verify=False)
+        if response.status_code is None:
+            raise NonExistDevices
+        if response.status_code is not 200:
+            raise ZdnsErrMessage(response.status_code)
+        return response.json()
 
     def delete_zone(self, context, zone, zone_id):
         """   delete zones    """
-        url = (self.host + str(self.port) + '/views/' + self.view_id +
+        url = (self.host + ":" + str(self.port) + '/views/' + self.view_id +
                '/zones/' + zone_id)
         headers = {'Content-type': 'application/json'}
         data = json.dumps(zone)
+        auth = (self.auth_name, self.auth_pw)
         LOG.info(_LI("delete zones :"+url))
-        request = requests.delete(url, data=data,
-                                  headers=headers, verify=False)
-        return request.json()
+        response = requests.delete(url, data=data,
+                                   headers=headers, auth=auth, verify=False)
+        if response.status_code is None:
+            raise NonExistDevices
+        if response.status_code is not 200:
+            raise ZdnsErrMessage(response.status_code)
+        return response.json()
 
     def create_rrs(self, context, rrs, zone_id):
         """   create zones    """
-        url = (str(self.host) + str(self.port) + '/views/' + self.view_id +
-               '/zones/' + str(zone_id) + '/rrs')
+        url = (str(self.host) + ":" + str(self.port) + '/views/' +
+               self.view_id + '/zones/' + str(zone_id) + '/rrs')
         headers = {'Content-type': 'application/json'}
         data = json.dumps(rrs)
+        auth = (self.auth_name, self.auth_pw)
         LOG.info(_LI("create rrs:"+url))
-        request = requests.post(url, data=data,
-                                headers=headers, verify=False)
-        return request.json()
+        response = requests.post(url, data=data,
+                                 headers=headers, auth=auth, verify=False)
+        if response.status_code is None:
+            raise NonExistDevices
+        if response.status_code is not 200:
+            raise ZdnsErrMessage(response.status_code)
+        return response.json()
 
     def update_rrs(self, context, rrs, zone_id, rrs_id):
         """   update rrs    """
-        url = (self.host + str(self.port) + '/views/' + self.view_id +
-               '/zones/' + zone_id + '/rrs' + rrs_id)
+        url = (self.host + ":" + str(self.port) + '/views/' + self.view_id +
+               '/zones/' + zone_id + '/rrs/' + rrs_id)
         headers = {'Content-type': 'application/json'}
         data = json.dumps(rrs)
+        auth = (self.auth_name, self.auth_pw)
         LOG.info(_LI("create rrs:"+url))
-        request = requests.put(url, data=data,
-                               headers=headers, verify=False)
-        return request
+        response = requests.put(url, data=data,
+                                headers=headers, auth=auth, verify=False)
+        if response.status_code is None:
+            raise NonExistDevices
+        if response.status_code is not 200:
+            raise ZdnsErrMessage(response.status_code)
+        return response.json()
 
     def delete_rrs(self, context, rrs, zone_id, rrs_id):
         """   delete rrs    """
-        url = (self.host + str(self.port) + '/views/' + self.view_id +
-               '/zones/' + zone_id + '/rrs' + rrs_id)
+        url = (self.host + ":" + str(self.port) + '/views/' + self.view_id +
+               '/zones/' + zone_id + '/rrs/' + rrs_id)
         headers = {'Content-type': 'application/json'}
         data = json.dumps(rrs)
+        auth = (self.auth_name, self.auth_pw)
         LOG.info(_LI("delete rrs :"+url))
-        request = requests.delete(url, data=data,
-                                  headers=headers, verify=False)
-        return request.json()
+        response = requests.delete(url, data=data,
+                                   headers=headers, auth=auth, verify=False)
+        if response.status_code is None:
+            raise NonExistDevices
+        if response.status_code is not 200:
+            raise ZdnsErrMessage(response.status_code)
+        return response.json()
 
     def del_cache(self, context, cache_dic):
         """   delete cache    """
-        url = (self.host + str(self.port) + '/cache/clean')
+        url = (self.host + ":" + str(self.port) + '/cache/clean')
         LOG.info(_LI("delete cache :"+url))
         headers = {'Content-type': 'application/json'}
-        request = requests.post(url, data=cache_dic,
-                                headers=headers, verify=False)
-        return request.json()
+        auth = (self.auth_name, self.auth_pw)
+        response = requests.post(url, data=cache_dic,
+                                 headers=headers, auth=auth, verify=False)
+        if response.status_code is None:
+            raise NonExistDevices
+        if response.status_code is not 200:
+            raise ZdnsErrMessage(response.status_code)
+        return response.json()
 
-    def get_zone_one(self, context, zone, zone_id):
+    def get_zone_one(self, context, zone_id):
         """   view one zone     """
-        url = (self.host + '/zones/' + str(self.port) +
+        url = (self.host + ":" + str(self.port) +
                '/views/' + self.view_id + '/zones/' + zone_id)
         headers = {'Content-type': 'application/json'}
-        data = json.dumps(zone)
         LOG.info(_LI("view one zone :"+url))
-        request = requests.get(url, data=data,
-                               headers=headers, verify=False)
-        return request.json()
+        auth = (self.auth_name, self.auth_pw)
+        response = requests.get(url, data={"current_user": "admin"},
+                                headers=headers, auth=auth, verify=False)
+        if response.status_code is None:
+            raise NonExistDevices
+        if response.status_code is not 200:
+            raise ZdnsErrMessage(response.status_code)
+        return response.json()
 
-    def get_zone(self, context, zone):
+    def get_zones(self, context):
         """   view all zone     """
-        url = (self.host + '/zones/' + str(self.port) +
-               '/views/' + self.view_id + '/zones/')
-        headers = {'Content-type': 'application/json'}
-        data = json.dumps(zone)
-        LOG.info(_LI("view all zone :"+url))
-        request = requests.get(url, data=data,
-                               headers=headers, verify=False)
-        return request.json()
+        url = (self.host + ":" + str(self.port) +
+               '/views/' + self.view_id + '/zones')
+        LOG.info(_LI("view all zone :" + url))
+        params = {'current_user': 'admin'}
+        auth = (self.auth_name, self.auth_pw)
+        response = requests.get(url, data=params,
+                                auth=auth, verify=False)
+        if response.status_code is None:
+            raise NonExistDevices
+        if response.status_code is not 200:
+            raise ZdnsErrMessage(response.status_code)
+        return response.json()
 
     def get_rrs(self, context, rrs, zone_id):
         """   view rrs    """
-        url = (self.host + str(self.port) + '/views/' + self.view_id +
+        url = (self.host + ":" + str(self.port) + '/views/' + self.view_id +
                '/zones/' + zone_id + '/rrs')
-        headers = {'Content-type': 'application/json'}
-        data = json.dumps(rrs)
+        params = {'current_user': 'admin'}
+        auth = (self.auth_name, self.auth_pw)
         LOG.info(_LI("view rrs :"+url))
-        request = requests.get(url, data=data,
-                               headers=headers, verify=False)
-        return request.json()
-
-    def make_zone_object(self, zone_dict):
-        target_values = {}
-        for k in zone_dict:
-            if k == "zone_name":
-                target_values['name'] = zone_dict[k]
-            else:
-                target_values[k] = zone_dict[k]
-        return target_values
+        response = requests.get(url, data=params,
+                                auth=auth, verify=False)
+        if response.status_code is None:
+            raise NonExistDevices
+        if response.status_code is not 200:
+            raise ZdnsErrMessage(response.status_code)
+        return response.json()

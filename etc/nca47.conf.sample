@@ -621,5 +621,5 @@
 #host_ip = 127.0.0.1
 #port = 20120
 #view_id = default
-#user_id=admin
-#password=zdns
+#auth_name=admin
+#auth_pw=zdns

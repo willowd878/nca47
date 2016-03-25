@@ -1,11 +1,13 @@
 import sys
+import sqlalchemy as sa
+
 from migrate.changeset.constraint import ForeignKeyConstraint
 from oslo_log import log
-import sqlalchemy as sa
-from nca47.common.i18n import _LE
 from nca47.common import service as nca47_service
+from nca47.common.i18n import _LE
 from nca47.db import api as db_api
 from nca47.objects import attributes as attr
+
 sys.path.append('/vagrant/nca47')
 
 LOG = log.getLogger(__name__)
@@ -65,10 +67,11 @@ def main():
         sa.Column('id', sa.String(attr.UUID_LEN), primary_key=True,
                   nullable=False),
         sa.Column('config_id', sa.String(attr.UUID_LEN), nullable=False),
-        sa.Column('input', sa.String(attr.TYPE_LEN), nullable=False),
-        sa.Column('operation_type', sa.String(attr.TYPE_LEN), nullable=True),
+        sa.Column('input', sa.String(attr.INPUT_MAX_LEN), nullable=False),
+        sa.Column('operation_type', sa.String(attr.NAME_MAX_LEN),
+                  nullable=True),
         sa.Column('operation_time', sa.DateTime(), nullable=True),
-        sa.Column('operation_status', sa.String(attr.STATUS_LEN),
+        sa.Column('operation_status', sa.String(attr.NAME_MAX_LEN),
                   nullable=True),
         sa.Column('deleted_at', sa.DateTime(), nullable=True),
         sa.Column('deleted', sa.Boolean(), nullable=True),
@@ -101,15 +104,15 @@ def main():
     dns_rrs_info = sa.Table('dns_rrs_info', meta,
         sa.Column('id', sa.String(attr.UUID_LEN), primary_key=True,
                   nullable=False),
-        sa.Column('rrs_id', sa.String(attr.UUID_LEN), nullable=False),
-        sa.Column('zone_id', sa.String(attr.UUID_LEN), unique=True,
-                  nullable=False),
+        sa.Column('rrs_id', sa.String(attr.UUID_LEN), nullable=True),
+        sa.Column('zone_id', sa.String(attr.UUID_LEN), nullable=False),
         sa.Column('rrs_name', sa.String(attr.NAME_MAX_LEN), nullable=False,
                   primary_key=True),
         sa.Column('type', sa.String(attr.TYPE_LEN), nullable=False,
                   primary_key=True),
+        sa.Column('ttl', sa.String(attr.TTL_LEN), nullable=False),
         sa.Column('klass', sa.String(attr.TENANT_ID_MAX_LEN), nullable=True),
-        sa.Column('data', sa.DateTime(), nullable=True),
+        sa.Column('rdata', sa.String(attr.TENANT_ID_MAX_LEN), nullable=True),
         sa.Column('operation_fro', sa.String(attr.NAME_MAX_LEN),
                   nullable=True),
         sa.Column('deleted_at', sa.DateTime(), nullable=True),
