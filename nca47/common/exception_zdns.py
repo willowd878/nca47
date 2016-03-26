@@ -1,5 +1,7 @@
 from nca47.common.exception import Invalid
 from nca47.common.i18n import _
+from nca47.common import exception
+import sys
 
 EZDNS = {
     1: 'any or none acl is read only',
@@ -109,6 +111,7 @@ EZDNS = {
     319: 'execute command timeout',
     320: 'password/role failed',
     404: 'Wrong url, please check it',
+    421: 'Have same zone name in Device',
     600: 'operate non-exist group',
     601: 'member with same ip alreasy exists',
     602: 'member with same name alreasy exists',
@@ -150,4 +153,4 @@ class ZdnsErrMessage(Invalid):
     _msg_fmt = None
 
     def __init__(self, cord):
-        self._msg_fmt = _(cord + ":" + EZDNS[cord])
+        _msg_fmt = _(str(cord) + ":" + EZDNS[cord])

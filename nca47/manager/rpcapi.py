@@ -2,6 +2,7 @@ from oslo_config import cfg
 from oslo_log import log as logging
 import oslo_messaging as messaging
 from nca47.common import rpc
+from nca47.common import service
 
 from nca47.common.i18n import _LI
 
@@ -62,15 +63,15 @@ class DNSManagerAPI(object):
         return self.client.call(context, 'delete_zone', zone=zone,
                                 zone_id=zone_id)
 
-    def get_zone(self, context, zone, zone_id):
-        LOG.info(_LI("get_zone: Replying rpc client's"
-                     "get_zone."))
-        return self.client.call(context, 'get_zone', zone=zone,
+    def get_zone_one(self, context, zone_id):
+        LOG.info(_LI("get_zone_one: Replying rpc client's"
+                     "get_zone_one."))
+        return self.client.call(context, 'get_zone_one',
                                 zone_id=zone_id)
 
-    def get_all_zone(self, context, zone):
-        LOG.info(_LI("get_all_zone: Replying rpc client's get_all_zone."))
-        return self.client.call(context, 'get_all_zone', zone=zone)
+    def get_zones(self, context):
+        LOG.info(_LI("get_zones: Replying rpc client's get_zones."))
+        return self.client.call(context, 'get_zones')
 
     # Zone_records Methods
     def create_record(self, context, records_dic, zone_id):
