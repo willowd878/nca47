@@ -20,14 +20,16 @@ def main():
     meta.bind = engine
 
     dns_servers = sa.Table('dns_servers', meta,
-        sa.Column('deleted_at', sa.DateTime(), nullable=True),
-        sa.Column('deleted', sa.Boolean(), nullable=True),
-        sa.Column('id', sa.String(attr.UUID_LEN), primary_key=True,
-                  nullable=False),
-        sa.Column('name', sa.String(attr.NAME_MAX_LEN), nullable=True),
-        mysql_engine='InnoDB',
-        mysql_charset='utf8'
-    )
+                           sa.Column('id', sa.String(attr.UUID_LEN),
+                                     primary_key=True,
+                                     nullable=False),
+                           sa.Column('name', sa.String(attr.NAME_MAX_LEN),
+                                     nullable=True),
+                           sa.Column('deleted_at', sa.DateTime(),
+                                     nullable=True),
+                           sa.Column('deleted', sa.Boolean(), nullable=True),
+                           mysql_engine='InnoDB',
+                           mysql_charset='utf8')
 
     nca_agent_info = sa.Table('nca_agent_info', meta,
         sa.Column('id', sa.String(attr.UUID_LEN), primary_key=True,
