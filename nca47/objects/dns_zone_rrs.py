@@ -15,7 +15,6 @@ class DnsZoneRrs(base.Nca47Object):
         'klass': object_fields.StringField(),
         'ttl': object_fields.StringField(),
         'rdata': object_fields.StringField(),
-        'operation_fro': object_fields.StringField(),
     }
 
     def __init__(self, context=None, **kwarg):

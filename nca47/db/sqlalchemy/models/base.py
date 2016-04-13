@@ -58,6 +58,12 @@ class HasId(object):
                    default=uuidutils.generate_uuid)
 
 
+class HasOperationMode(object):
+    """operation_fro mixin, add to subclasses that have an operation_fro."""
+    operation_fro = sa.Column(sa.String(attr.NAME_MAX_LEN),
+                              default='AUTO')
+
+
 class HasStatus(object):
     """Status mixin."""
 

@@ -9,15 +9,15 @@ class DnsZone(base.Nca47Object):
 
     fields = {
         'zone_id': object_fields.StringField(),
+        'tenant_id': object_fields.StringField(),
         'zone_name': object_fields.StringField(),
-        'vdns_id': object_fields.StringField(),
+        'vres_id': object_fields.StringField(),
         'masters': object_fields.ListOfStringsField(),
         'slaves': object_fields.ListOfStringsField(),
         'owners': object_fields.ListOfStringsField(),
         'ad_controller': object_fields.ListOfStringsField(),
         'default_ttl': object_fields.StringField(),
         'renewal': object_fields.StringField(),
-        'operation_fro': object_fields.StringField(),
     }
 
     def __init__(self, context=None, **kwarg):

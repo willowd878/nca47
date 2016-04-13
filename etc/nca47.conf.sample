@@ -616,8 +616,8 @@
 #dns_driver = zdns
 #firewall_driver = fake
 
-[zdns_agent]
-
+[zdns]
+#dns_vres_id = da7f10eb-2d02-4f0c-8edd-839a3f5b8731
 #host_ip = 127.0.0.1
 #port = 20120
 #view_id = default

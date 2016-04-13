@@ -1,24 +1,28 @@
 from oslo_log import log as logging
-
 from nca47.api.controllers.v1 import base
 from nca47.api.controllers.v1 import tools
+from nca47.common.exception import NonExistParam
 from nca47.common.exception import ParamValueError
 from nca47.common.exception import Nca47Exception
+from nca47.common.exception import BadRequest
 from nca47.common.i18n import _
 from nca47.common.i18n import _LE
 from nca47.manager import central
 from oslo_serialization import jsonutils as json
-from six.moves import http_client
+from oslo_db import exception as db_exception
+from oslo_messaging.exceptions import MessagingException
 
 LOG = logging.getLogger(__name__)
 
 
 class DnsZones(base.BaseRestController):
+
     """
     nca47 dnsZones class, using for add/delete/update/query the zones info,
     validate parameters whether is legal, handling DB operations and calling
     rpc client's corresponding method to send messaging to agent endpoints
     """
+
     def __init__(self):
         self.manager = central.CentralManager.get_instance()
         super(DnsZones, self).__init__()
@@ -30,14 +34,23 @@ class DnsZones(base.BaseRestController):
         try:
             # get the body
             values = json.loads(req.body)
+            # get the url
+            url = req.url
+            if len(args) != 0:
+                raise BadRequest(resource="zone create", msg=url)
+            if 'renewal' not in values.keys():
+                raise NonExistParam(param_name='renewal')
             if values['renewal'] == 'no':
                 # check the in values
                 valid_attributes = ['name', 'owners', 'default_ttl', 'renewal',
-                                    'current_user']
-            else:
+                                    'current_user', 'tenant_id']
+            elif values['renewal'] == 'yes':
                 # check the in values
                 valid_attributes = ['name', 'owners', 'default_ttl', 'renewal',
-                                    'zone_content', 'slaves', 'current_user']
+                                    'zone_content', 'slaves', 'current_user',
+                                    'tenant_id']
+            else:
+                raise ParamValueError(param_name='renewal')
             # check the in values
             recom_msg = tools.validat_parms(values, valid_attributes)
             LOG.info(_("the in value body is %(body)s"), {"body": values})
@@ -48,9 +61,13 @@ class DnsZones(base.BaseRestController):
             LOG.error(_LE('Error exception! error info: %' + e.message))
             LOG.exception(e)
             return tools.ret_info(e.code, e.message)
+        except MessagingException as exception:
+            self.response.status = 500
+            message = exception.value
+            return tools.ret_info(self.response.status, message)
         except Exception as exception:
             LOG.exception(exception)
-            self.response.status = http_client.INTERNAL_SERVER_ERROR
+            self.response.status = 500
             message = "the values of the body format error"
             return tools.ret_info(self.response.status, message)
         return zones
@@ -60,6 +77,10 @@ class DnsZones(base.BaseRestController):
         # get the context
         context = req.context
         try:
+            # get the url
+            url = req.url
+            if len(args) > 2:
+                raise BadRequest(resource="zone update", msg=url)
             # get the body
             values = json.loads(req.body)
             LOG.info(_("the in value body is %(body)s"), {"body": values})
@@ -74,7 +95,7 @@ class DnsZones(base.BaseRestController):
                                                             args[0])
                 else:
                     # return the wrong message
-                    raise ParamValueError(param_name="no owners")
+                    raise BadRequest(resource="zone update", msg=url)
             else:
                 # check the in values
                 valid_attributes = ['default_ttl', 'current_user']
@@ -86,9 +107,13 @@ class DnsZones(base.BaseRestController):
             LOG.error(_LE('Error exception! error info: %' + e.message))
             LOG.exception(e)
             return tools.ret_info(e.code, e.message)
+        except MessagingException as exception:
+            self.response.status = 500
+            message = exception.value
+            return tools.ret_info(self.response.status, message)
         except Exception as exception:
             LOG.exception(exception)
-            self.response.status = http_client.INTERNAL_SERVER_ERROR
+            self.response.status = 500
             message = "the values of the body format error"
             return tools.ret_info(self.response.status, message)
         return zones
@@ -100,6 +125,10 @@ class DnsZones(base.BaseRestController):
         # check the in values
         valid_attributes = ['current_user']
         try:
+            # get the url
+            url = req.url
+            if len(args) != 1:
+                raise BadRequest(resource="zone delete", msg=url)
             # get the body
             values = json.loads(req.body)
             LOG.info(_("the in value body is %(body)s"), {"body": values})
@@ -113,9 +142,13 @@ class DnsZones(base.BaseRestController):
             LOG.error(_LE('Error exception! error info: %' + e.message))
             LOG.exception(e)
             return tools.ret_info(e.code, e.message)
+        except MessagingException as exception:
+            self.response.status = 500
+            message = exception.value
+            return tools.ret_info(self.response.status, message)
         except Exception as exception:
             LOG.exception(exception)
-            self.response.status = http_client.INTERNAL_SERVER_ERROR
+            self.response.status = 500
             message = "the values of the body format error"
             return tools.ret_info(self.response.status, message)
         return zones
@@ -142,6 +175,10 @@ class DnsZones(base.BaseRestController):
             LOG.error(_LE('Error exception! error info: %' + e.message))
             LOG.exception(e)
             return tools.ret_info(e.code, e.message)
+        except MessagingException as exception:
+            self.response.status = 500
+            message = exception.value
+            return tools.ret_info(self.response.status, message)
         LOG.info(_("Return of get_zones json is %(zones)s"), {"zones": zones})
         return zones
 
@@ -163,5 +200,9 @@ class DnsZones(base.BaseRestController):
             LOG.error(_LE('Error exception! error info: %' + e.message))
             LOG.exception(e)
             return tools.ret_info(e.code, e.message)
+        except MessagingException as exception:
+            self.response.status = 500
+            message = exception.value
+            return tools.ret_info(self.response.status, message)
         LOG.info(_("Return of get_zones json is %(zones)s"), {"zones": zones})
         return zones

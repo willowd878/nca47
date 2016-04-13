@@ -1,5 +1,4 @@
 import sqlalchemy as sa
-from oslo_db.sqlalchemy import types as db_types
 
 from nca47.db.sqlalchemy.models import base as model_base
 from nca47.objects import attributes as attr
@@ -8,9 +7,10 @@ from nca47.objects import attributes as attr
 HasTenant = model_base.HasTenant
 HasId = model_base.HasId
 HasStatus = model_base.HasStatus
+HasOperationMode = model_base.HasOperationMode
 
 
-class OperationHistory(model_base.BASE, HasId):
+class OperationHistory(model_base.BASE, HasId, HasOperationMode):
     """Represents a dns zone."""
 
     __tablename__ = 'nca_operation_history'

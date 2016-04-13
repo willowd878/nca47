@@ -4,6 +4,7 @@ from oslo_db.sqlalchemy import enginefacade
 from oslo_db.sqlalchemy import utils as oslo_db_utils
 from oslo_log import log
 from oslo_utils import uuidutils
+from sqlalchemy import exc
 
 from nca47.common import exception
 from nca47.db import api
@@ -75,9 +76,10 @@ class Connection(api.Connection):
                 session.add(db_obj)
                 session.flush()
                 session.commit()
-            except Exception:
+            except exc:
                 session.rollback()
-                raise exception.DBError(param_name="CREATE")
+                raise exc
+                #raise exception.DBError(param_name="CREATE")
         return db_obj
 
     def get_object(self, model, **kwargs):
@@ -107,9 +109,10 @@ class Connection(api.Connection):
             try:
                 db_obj.update(values)
                 session.commit()
-            except Exception:
+            except exc:
                 session.rollback()
-                raise exception.DBError(param_name="UPDATE")
+                raise exc
+                #raise exception.DBError(param_name="UPDATE")
         return db_obj
 
     def delete_object(self, model, id):
@@ -120,7 +123,8 @@ class Connection(api.Connection):
             try:
                 query.soft_delete(session)
                 session.commit()
-            except Exception:
+            except exc:
                 session.rollback()
-                raise exception.DBError(param_name="UPDATE")
+                raise exc
+                #raise exception.DBError(param_name="UPDATE")
         return query
