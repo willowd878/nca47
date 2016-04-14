@@ -158,5 +158,22 @@ class IsNotExistError(Nca47Exception):
     _msg_fmt = _("The object of %(param_name)s don't exist!")
 
 
+class NoexistOrMultipleError(Nca47Exception):
+    _msg_fmt = _("The object of %(param_name)s don't exist or exist multiple"
+                 " results!")
+
+
 class DBError(Nca47Exception):
     _msg_fmt = _("DB error happened in %(param_name)s method")
+
+
+class RecordNotInZone(Nca47Exception):
+    _msg_fmt = _("the record %(record_id)s not in %(zone_id)s !")
+
+
+class RrsNameValueError(Nca47Exception):
+    _msg_fmt = _("rrs name %(json_name)s don't end of the %(zone_name)s !")
+
+
+class ZoneOfRecordIsError(Nca47Exception):
+    _msg_fmt = _("Zone of rrs name %(json_name)s is Error!")

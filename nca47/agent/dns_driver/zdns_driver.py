@@ -31,7 +31,7 @@ ZONES_AGENT_OPTS = [
 ]
 
 CONF = cfg.CONF
-opt_group = cfg.OptGroup(name='zdns_agent',
+opt_group = cfg.OptGroup(name='zdns',
                          title='Options for the nca47-zdns_driver service')
 CONF.register_group(opt_group)
 CONF.register_opts(ZONES_AGENT_OPTS, opt_group)
@@ -39,11 +39,12 @@ CONF.register_opts(ZONES_AGENT_OPTS, opt_group)
 
 class dns_zone_driver():
     def __init__(self):
-        self.host = 'https://' + CONF.zdns_agent.host_ip
-        self.port = CONF.zdns_agent.port
-        self.view_id = CONF.zdns_agent.view_id
-        self.auth_name = CONF.zdns_agent.auth_name
-        self.auth_pw = CONF.zdns_agent.auth_pw
+        self.host = 'https://' + CONF.zdns.host_ip
+        self.port = CONF.zdns.port
+        self.view_id = CONF.zdns.view_id
+        self.auth_name = CONF.zdns.auth_name
+        self.auth_pw = CONF.zdns.auth_pw
+        self.zdns_error = ZdnsErrMessage()
 
     @classmethod
     def get_instance(cls):
@@ -59,13 +60,14 @@ class dns_zone_driver():
         headers = {'Content-type': 'application/json'}
         data = json.dumps(zone)
         auth = (self.auth_name, self.auth_pw)
-        LOG.info(_LI("create zones:"+url))
+        LOG.info(_LI("create zones:" + url))
         response = requests.post(url, data=data,
                                  headers=headers, auth=auth, verify=False)
         if response.status_code is None:
             raise NonExistDevices
         if response.status_code is not 200:
-            raise ZdnsErrMessage(response.status_code)
+            raise ZdnsErrMessage(self.zdns_error.getMessage(response.
+                                                            status_code))
         return response.json()
 
     def update_zone_owners(self, context, zone, zone_id):
@@ -75,13 +77,14 @@ class dns_zone_driver():
         headers = {'Content-type': 'application/json'}
         data = json.dumps(zone)
         auth = (self.auth_name, self.auth_pw)
-        LOG.info(_LI("update zones owners:"+url))
+        LOG.info(_LI("update zones owners:" + url))
         response = requests.get(url, data=data,
                                 headers=headers, auth=auth, verify=False)
         if response.status_code is None:
             raise NonExistDevices
         if response.status_code is not 200:
-            raise ZdnsErrMessage(response.status_code)
+            raise ZdnsErrMessage(self.zdns_error.getMessage(response.
+                                                            status_code))
         return response.json()
 
     def update_zone(self, context, zone, zone_id):
@@ -91,13 +94,14 @@ class dns_zone_driver():
         headers = {'Content-type': 'application/json'}
         data = json.dumps(zone)
         auth = (self.auth_name, self.auth_pw)
-        LOG.info(_LI("update zones :"+url))
+        LOG.info(_LI("update zones :" + url))
         response = requests.put(url=url, data=data,
                                 headers=headers, auth=auth, verify=False)
         if response.status_code is None:
             raise NonExistDevices
         if response.status_code is not 200:
-            raise ZdnsErrMessage(response.status_code)
+            raise ZdnsErrMessage(self.zdns_error.getMessage(response.
+                                                            status_code))
         return response.json()
 
     def delete_zone(self, context, zone, zone_id):
@@ -107,13 +111,14 @@ class dns_zone_driver():
         headers = {'Content-type': 'application/json'}
         data = json.dumps(zone)
         auth = (self.auth_name, self.auth_pw)
-        LOG.info(_LI("delete zones :"+url))
+        LOG.info(_LI("delete zones :" + url))
         response = requests.delete(url, data=data,
                                    headers=headers, auth=auth, verify=False)
         if response.status_code is None:
             raise NonExistDevices
         if response.status_code is not 200:
-            raise ZdnsErrMessage(response.status_code)
+            raise ZdnsErrMessage(self.zdns_error.getMessage(response.
+                                                            status_code))
         return response.json()
 
     def create_rrs(self, context, rrs, zone_id):
@@ -123,13 +128,14 @@ class dns_zone_driver():
         headers = {'Content-type': 'application/json'}
         data = json.dumps(rrs)
         auth = (self.auth_name, self.auth_pw)
-        LOG.info(_LI("create rrs:"+url))
+        LOG.info(_LI("create rrs:" + url))
         response = requests.post(url, data=data,
                                  headers=headers, auth=auth, verify=False)
         if response.status_code is None:
             raise NonExistDevices
         if response.status_code is not 200:
-            raise ZdnsErrMessage(response.status_code)
+            raise ZdnsErrMessage(self.zdns_error.getMessage(response.
+                                                            status_code))
         return response.json()
 
     def update_rrs(self, context, rrs, zone_id, rrs_id):
@@ -139,13 +145,14 @@ class dns_zone_driver():
         headers = {'Content-type': 'application/json'}
         data = json.dumps(rrs)
         auth = (self.auth_name, self.auth_pw)
-        LOG.info(_LI("create rrs:"+url))
+        LOG.info(_LI("update rrs:" + url))
         response = requests.put(url, data=data,
                                 headers=headers, auth=auth, verify=False)
         if response.status_code is None:
             raise NonExistDevices
         if response.status_code is not 200:
-            raise ZdnsErrMessage(response.status_code)
+            raise ZdnsErrMessage(self.zdns_error.getMessage(response.
+                                                            status_code))
         return response.json()
 
     def delete_rrs(self, context, rrs, zone_id, rrs_id):
@@ -155,19 +162,20 @@ class dns_zone_driver():
         headers = {'Content-type': 'application/json'}
         data = json.dumps(rrs)
         auth = (self.auth_name, self.auth_pw)
-        LOG.info(_LI("delete rrs :"+url))
+        LOG.info(_LI("delete rrs :" + url))
         response = requests.delete(url, data=data,
                                    headers=headers, auth=auth, verify=False)
         if response.status_code is None:
             raise NonExistDevices
         if response.status_code is not 200:
-            raise ZdnsErrMessage(response.status_code)
+            raise ZdnsErrMessage(self.zdns_error.getMessage(response.
+                                                            status_code))
         return response.json()
 
     def del_cache(self, context, cache_dic):
         """   delete cache    """
         url = (self.host + ":" + str(self.port) + '/cache/clean')
-        LOG.info(_LI("delete cache :"+url))
+        LOG.info(_LI("delete cache :" + url))
         headers = {'Content-type': 'application/json'}
         auth = (self.auth_name, self.auth_pw)
         response = requests.post(url, data=cache_dic,
@@ -175,7 +183,8 @@ class dns_zone_driver():
         if response.status_code is None:
             raise NonExistDevices
         if response.status_code is not 200:
-            raise ZdnsErrMessage(response.status_code)
+            raise ZdnsErrMessage(self.zdns_error.getMessage(response.
+                                                            status_code))
         return response.json()
 
     def get_zone_one(self, context, zone_id):
@@ -183,14 +192,15 @@ class dns_zone_driver():
         url = (self.host + ":" + str(self.port) +
                '/views/' + self.view_id + '/zones/' + zone_id)
         headers = {'Content-type': 'application/json'}
-        LOG.info(_LI("view one zone :"+url))
+        LOG.info(_LI("view one zone :" + url))
         auth = (self.auth_name, self.auth_pw)
         response = requests.get(url, data={"current_user": "admin"},
                                 headers=headers, auth=auth, verify=False)
         if response.status_code is None:
             raise NonExistDevices
         if response.status_code is not 200:
-            raise ZdnsErrMessage(response.status_code)
+            raise ZdnsErrMessage(self.zdns_error.getMessage(response.
+                                                            status_code))
         return response.json()
 
     def get_zones(self, context):
@@ -205,20 +215,22 @@ class dns_zone_driver():
         if response.status_code is None:
             raise NonExistDevices
         if response.status_code is not 200:
-            raise ZdnsErrMessage(response.status_code)
+            raise ZdnsErrMessage(self.zdns_error.getMessage(response.
+                                                            status_code))
         return response.json()
 
-    def get_rrs(self, context, rrs, zone_id):
+    def get_rrs(self, context, zone_id):
         """   view rrs    """
         url = (self.host + ":" + str(self.port) + '/views/' + self.view_id +
                '/zones/' + zone_id + '/rrs')
         params = {'current_user': 'admin'}
         auth = (self.auth_name, self.auth_pw)
-        LOG.info(_LI("view rrs :"+url))
+        LOG.info(_LI("get_rrs :" + url))
         response = requests.get(url, data=params,
                                 auth=auth, verify=False)
         if response.status_code is None:
             raise NonExistDevices
         if response.status_code is not 200:
-            raise ZdnsErrMessage(response.status_code)
+            raise ZdnsErrMessage(self.zdns_error.getMessage(response.
+                                                            status_code))
         return response.json()

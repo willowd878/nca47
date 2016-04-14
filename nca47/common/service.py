@@ -108,18 +108,15 @@ class RPCService(object):
 
     def stop(self):
         LOG.debug("Stopping RPC server on topic '%s'" % self._rpc_topic)
-
         for e in self._rpc_endpoints:
             if e != self and hasattr(e, 'stop'):
                 e.stop()
-
         # Try to shut the connection down, but if we get any sort of
         # errors, go ahead and ignore them.. as we're shutting down anyway
         try:
             self._rpc_server.stop()
         except Exception:
             pass
-
         super(RPCService, self).stop()
 
     def wait(self):

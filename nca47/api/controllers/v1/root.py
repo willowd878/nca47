@@ -3,6 +3,7 @@ import pecan
 from nca47.api.controllers.v1 import dns_records, cache_clean
 from nca47.api.controllers.v1 import dns_zones
 from nca47.api.controllers.v1 import dns_servers
+from nca47.api.controllers.v1 import firewall
 
 
 class V1Controller(object):
@@ -23,5 +24,7 @@ class V1Controller(object):
             return cache_clean.CacheCleanController(), remainder
         elif kind == "dns_servers":
             return dns_servers.DnsServersController(), remainder
+        elif kind == "firewall":
+            return firewall.FirewallController(), remainder
         else:
             pecan.abort(404)
