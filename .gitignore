@@ -1,0 +1,5 @@
+# Compiled files
+*.py[co]
+
+# Other
+.idea
