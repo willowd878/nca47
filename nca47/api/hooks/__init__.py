@@ -1,6 +1,7 @@
 from pecan import hooks
 
 from nca47.common import context
+from nca47.common import policy
 
 class ContextHook(hooks.PecanHook):
     """Configures a request context and attaches it to the request.
@@ -29,6 +30,9 @@ class ContextHook(hooks.PecanHook):
 
     def before(self, state):
         headers = state.request.headers
+        token_info = headers.environ['keystone.token_info']['access']
+        tenant_info = token_info['token']['tenant']
+        user_info = token_info['user']
 
         # Do not pass any token with context for noauth mode
         auth_token = headers.get('X-Auth-Token')
@@ -40,15 +44,17 @@ class ContextHook(hooks.PecanHook):
             'domain_name': headers.get('X-User-Domain-Name'),
             'auth_token': auth_token,
             'roles': headers.get('X-Roles', '').split(','),
+            'tenant_id': tenant_info['id'],
+            'user_id': user_info['id']
         }
 
-        # is_admin = policy.enforce('admin_api', creds, creds)
-        is_public_api = state.request.environ.get('is_public_api', False)
+        is_admin = policy.enforce('admin_api', creds, creds)
+        # is_public_api = state.request.environ.get('is_public_api', False)
         # show_password = policy.enforce('show_password', creds, creds)
 
         state.request.context = context.RequestContext(
-            # is_admin=is_admin,
-            is_public_api=is_public_api,
+            is_admin=is_admin,
+            # is_public_api=is_public_api,
             # show_password=show_password,
             **creds)
 

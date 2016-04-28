@@ -7,7 +7,8 @@ class RequestContext(context.RequestContext):
     def __init__(self, auth_token=None, domain_id=None, domain_name=None,
                  user=None, tenant=None, is_admin=False, is_public_api=False,
                  read_only=False, show_deleted=False, request_id=None,
-                 roles=None, show_password=True):
+                 roles=None, show_password=True,
+                 tenant_id=None, user_id=None):
         """Stores several additional request parameters:
 
         :param domain_id: The ID of the domain.
@@ -24,6 +25,9 @@ class RequestContext(context.RequestContext):
         self.domain_name = domain_name
         self.roles = roles or []
         self.show_password = show_password
+        self.tenant_id = tenant_id
+        self.user_id = user_id
+        self.is_admin = is_admin
 
         super(RequestContext, self).__init__(auth_token=auth_token,
                                              user=user, tenant=tenant,
