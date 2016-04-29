@@ -177,3 +177,7 @@ class RrsNameValueError(Nca47Exception):
 
 class ZoneOfRecordIsError(Nca47Exception):
     _msg_fmt = _("Zone of rrs name %(json_name)s is Error!")
+
+
+class ConfigInvalid(Nca47Exception):
+    _msg_fmt = _("Config is Error!")
