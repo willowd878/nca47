@@ -24,7 +24,7 @@ CONF.register_opts(exc_log_opts)
 
 class Nca47Exception(Exception):
     """
-    Base Ironic Exception
+    Base Nca Exception
 
     To correctly use this class, inherit from it and define
     a '_msg_fmt' property. That message will get printf'd
@@ -177,3 +177,7 @@ class RrsNameValueError(Nca47Exception):
 
 class ZoneOfRecordIsError(Nca47Exception):
     _msg_fmt = _("Zone of rrs name %(json_name)s is Error!")
+
+
+class ConfigInvalid(Nca47Exception):
+    _msg_fmt = _("Config is Error!")

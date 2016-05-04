@@ -143,6 +143,8 @@ def prepare_service(argv=[]):
                                          'neutronclient=WARNING',
                                          'glanceclient=WARNING',
                                          'urllib3.connectionpool=WARNING',
+                                         'keystonemiddleware.auth_token=INFO',
+                                         'keystoneauth.session=INFO',
                                          ])
     config.parse_args(argv)
     log.setup(CONF, 'nca47')
