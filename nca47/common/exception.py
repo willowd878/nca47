@@ -2,12 +2,12 @@ from oslo_config import cfg
 from oslo_log import log as logging
 import six
 from six.moves import http_client
-
 from nca47.common.i18n import _
 from nca47.common.i18n import _LE
 from nca47.common.i18n import _LW
 
 LOG = logging.getLogger(__name__)
+
 
 exc_log_opts = [
     cfg.BoolOpt('fatal_exception_format_errors',
@@ -102,13 +102,108 @@ class Invalid(Nca47Exception):
     _msg_fmt = _("Unacceptable parameters.")
     code = http_client.BAD_REQUEST
 
+
+class checkParam(Nca47Exception):
+    _msg_fmt = _("check param :%(param_name)s is errored")
+
+
+class checkBody(Nca47Exception):
+    _msg_fmt = _("check body is None!")
+    code = http_client.BAD_REQUEST
+
+
 class BadRequest(Nca47Exception):
     _msg_fmt = _('Bad %(resource)s request: %(msg)s.')
 
 
 class NotFound(Nca47Exception):
-    pass
+    _msg_fmt = _("Resource could not be found.")
+    code = http_client.NOT_FOUND
 
 
 class Conflict(Nca47Exception):
     pass
+
+
+class HaveSameObject(Nca47Exception):
+    _msg_fmt = _("The object with name= %(param_name)s already exists")
+    code = http_client.BAD_REQUEST
+
+
+class NonExistDevices(NotFound):
+    _msg_fmt = _("some devices don't exist any more")
+
+
+class DriverNotFound(NotFound):
+    _msg_fmt = _("Could not find the following driver(s): %(driver_name)s.")
+
+
+class ParamNull(Nca47Exception):
+    _msg_fmt = _("the values of the %(param_name)s is null")
+
+
+class ParamFormatError(Nca47Exception):
+    _msg_fmt = _("the values of the %(param_name)s format error")
+
+
+class NonExistParam(Nca47Exception):
+    _msg_fmt = _("please input the %(param_name)s")
+
+
+class ParamValueError(Nca47Exception):
+    _msg_fmt = _("the value of the %(param_name)s is error")
+
+
+class ParamIsNotHaveError(Nca47Exception):
+    _msg_fmt = _("the param havn't %(param_name)s !")
+
+
+class IsNotExistError(Nca47Exception):
+    _msg_fmt = _("The object of %(param_name)s don't exist!")
+
+
+class NoexistOrMultipleError(Nca47Exception):
+    _msg_fmt = _("The object of %(param_name)s don't exist or exist multiple"
+                 " results!")
+
+
+class DBError(Nca47Exception):
+    _msg_fmt = _("DB error happened in %(param_name)s method")
+
+
+class RecordNotInZone(Nca47Exception):
+    _msg_fmt = _("the record %(record_id)s not in %(zone_id)s !")
+
+
+class RrsNameValueError(Nca47Exception):
+    _msg_fmt = _("rrs name %(json_name)s don't end of the %(zone_name)s !")
+
+
+class ZoneOfRecordIsError(Nca47Exception):
+    _msg_fmt = _("Tenant didn't have the zone!"
+                 " %(name)s or %(tenant)s is Error")
+
+
+class DataDeleteError(Nca47Exception):
+    _msg_fmt = _("The Object already have some members with name=%(name)s !")
+
+
+class IsBeingUsedError(Nca47Exception):
+    _msg_fmt = _("The Object  name=%(name)s is being used !")
+
+
+class HaveSameError(Nca47Exception):
+    _msg_fmt = _("The %(param_name)s already exists!")
+    code = http_client.BAD_REQUEST
+
+
+class DeviceError(Nca47Exception):
+    _msg_fmt = _("Abnormal devices")
+
+
+class NotAllowModify(Nca47Exception):
+    _msg_fmt = _("The %(param_name)s Not allowed to modify")
+
+
+class IllegalParam(Nca47Exception):
+    _msg_fmt = _("The %(param_name)s is a illegal param name ")

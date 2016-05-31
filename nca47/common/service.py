@@ -13,8 +13,6 @@ from nca47.api import app
 from nca47.common import config
 from nca47.common import exception
 from nca47.common.i18n import _
-from nca47.common.i18n import _LE
-from nca47.common.i18n import _LI
 from nca47.common import rpc
 
 service_opts = [
@@ -108,18 +106,15 @@ class RPCService(object):
 
     def stop(self):
         LOG.debug("Stopping RPC server on topic '%s'" % self._rpc_topic)
-
         for e in self._rpc_endpoints:
             if e != self and hasattr(e, 'stop'):
                 e.stop()
-
         # Try to shut the connection down, but if we get any sort of
         # errors, go ahead and ignore them.. as we're shutting down anyway
         try:
             self._rpc_server.stop()
         except Exception:
             pass
-
         super(RPCService, self).stop()
 
     def wait(self):

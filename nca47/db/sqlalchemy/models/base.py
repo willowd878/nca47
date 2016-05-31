@@ -1,4 +1,6 @@
 from oslo_db.sqlalchemy import models
+import json
+from sqlalchemy.types import TypeDecorator, Text
 from oslo_utils import timeutils
 from oslo_utils import uuidutils
 import sqlalchemy as sa
@@ -58,7 +60,44 @@ class HasId(object):
                    default=uuidutils.generate_uuid)
 
 
+class HasOperationMode(object):
+    """operation_fro mixin, add to subclasses that have an operation_fro."""
+    operation_fro = sa.Column(sa.String(attr.NAME_MAX_LEN),
+                              default='AUTO')
+
+
 class HasStatus(object):
     """Status mixin."""
 
     status = sa.Column(sa.String(16), nullable=False)
+
+
+class JsonEncodedList(TypeDecorator):
+    """
+    rewrite oslo.db JsonEncodedList class in type module, in order to
+    support chinese character, make sure chinese character can be insert
+    into Database as UTF-8 charset
+    """
+
+    type = list
+    impl = Text
+
+    def process_bind_param(self, value, dialect):
+        if value is None:
+            if self.type is not None:
+                # Save default value according to current type to keep the
+                # interface consistent.
+                value = self.type()
+        elif self.type is not None and not isinstance(value, self.type):
+            if isinstance(value, basestring):
+                tmp_value = []
+                tmp_value.append(value)
+                value = tmp_value
+        serialized_value = json.dumps(value, encoding='UTF-8',
+                                      ensure_ascii=False)
+        return serialized_value
+
+    def process_result_value(self, value, dialect):
+        if value is not None:
+            value = json.loads(value)
+        return value

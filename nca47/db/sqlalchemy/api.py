@@ -4,9 +4,12 @@ from oslo_db.sqlalchemy import enginefacade
 from oslo_db.sqlalchemy import utils as oslo_db_utils
 from oslo_log import log
 from oslo_utils import uuidutils
+from sqlalchemy.orm.base import _entity_descriptor
+from sqlalchemy import sql
 
 from nca47.common import exception
 from nca47.db import api
+from nca47.api.controllers.v1 import tools
 
 LOG = log.getLogger(__name__)
 
@@ -52,6 +55,13 @@ def add_identity_filter(query, id):
         raise exception.Invalid("invalid id")
 
 
+def beginSession(sess):
+    try:
+        sess.begin_nested()
+    except:
+        sess.begin(subtransactions=True)
+
+
 class Connection(api.Connection):
     """SqlAlchemy connection."""
 
@@ -63,9 +73,16 @@ class Connection(api.Connection):
             if 'id' not in values:
                 values['id'] = uuidutils.generate_uuid()
             db_obj = model(**values)
-            session.add(db_obj)
-            session.flush()
-        return db_obj
+            beginSession(session)
+            try:
+                session.add(db_obj)
+                session.flush()
+                session.commit()
+            except Exception as e:
+                session.rollback()
+                LOG.exception(e)
+                raise exception.DBError(param_name="CREATE")
+        return dict(db_obj)
 
     def get_object(self, model, **kwargs):
         with _session_for_read():
@@ -88,13 +105,57 @@ class Connection(api.Connection):
         return db_obj
 
     def update_object(self, model, id, values):
-        with _session_for_write():
+        with _session_for_write() as session:
             db_obj = self._safe_get_object(model, id)
-            db_obj.update(values)
+            beginSession(session)
+            try:
+                db_obj.update(values)
+                session.commit()
+            except Exception as e:
+                session.rollback()
+                LOG.exception(e)
+                raise exception.DBError(param_name="UPDATE")
         return db_obj
 
     def delete_object(self, model, id):
         """Delete an object."""
         with _session_for_write() as session:
+            beginSession(session)
             query = self._safe_get_object(model, id)
-            query.soft_delete(session)
+            try:
+                query.soft_delete(session)
+                session.commit()
+            except Exception as e:
+                session.rollback()
+                LOG.exception(e)
+                raise exception.DBError(param_name="UPDATE")
+        return query
+
+    def get_all_objects_by_conditions(self, model, like_dic, search_dic):
+        with _session_for_read():
+            query = model_query(model)
+
+            like_clauses = [_entity_descriptor(query._joinpoint_zero(), key).
+                            like('%' + value + '%') for key, value in
+                            like_dic.items()]
+            clauses = [_entity_descriptor(query._joinpoint_zero(), key) ==
+                       value for key, value in search_dic.items()]
+
+            clauses.extend(like_clauses)
+            query = query.filter(sql.and_(*clauses))
+            db_obj_list = query.all()
+            return db_obj_list
+
+    def get_all_objects(self, model, str_sql):
+        with _session_for_read() as session:
+            beginSession(session)
+            try:
+                connect = session.connection()
+                result_obj = connect.execute(str_sql)
+                keys = result_obj.keys()
+                values = result_obj.fetchall()
+            except Exception as e:
+                LOG.exception(e)
+                raise exception.DBError(param_name="get_all_by_fuzzy")
+        obj_dic = tools.get_obj_list(keys, values)
+        return obj_dic

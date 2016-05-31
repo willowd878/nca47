@@ -31,8 +31,12 @@ def get_engine():
     return facade.get_engine()
 
 
-def get_session():
-    return IMPL.get_session()
+def get_session(autocommit=True, expire_on_commit=False, use_slave=False):
+    """Helper method to grab session."""
+    facade = _create_facade_lazily()
+    return facade.get_session(autocommit=autocommit,
+                              expire_on_commit=expire_on_commit,
+                              use_slave=use_slave)
 
 
 @six.add_metaclass(abc.ABCMeta)
@@ -62,3 +66,11 @@ class Connection(object):
     @abc.abstractmethod
     def delete_object(self, model, id):
         """Delete an object."""
+
+    @abc.abstractmethod
+    def get_all_objects_by_conditions(self, model, like_dic, search_dic):
+        """search an object"""
+
+    @abc.abstractmethod
+    def get_all_objects(self, model, str_sql):
+        """search an object"""
