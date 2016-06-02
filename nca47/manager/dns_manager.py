@@ -356,7 +356,7 @@ class DNSManager(object):
                 target_zone = zone_obj.get_object(context, **zone_name_dic)
             except Exception:
                 raise exception.IsNotExistError(
-                                    param_name=rrs["test_environment"])
+                                        param_name=rrs["test_environment"])
             zone_id = target_zone["id"]
             rrs["zone_id"] = zone_id
         search_list = ["type", "deleted", "zone_id", "tenant_id"]
